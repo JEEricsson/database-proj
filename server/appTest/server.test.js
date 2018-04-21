@@ -4,7 +4,7 @@ const request = require('supertest')
 const {app} = require('./../server')
 const {Purchase} = require('./../models/purchase')
 
-beforeEach((done) => {
+beforeEach((done) => {  //!!!! Warning !!!!Don´t use this test on your production database. It will whipe it clean.....
     Purchase.remove({}).then(() => done())
 })
 

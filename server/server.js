@@ -1,4 +1,5 @@
 let mongoose = require('mongoose')
+require('mongoose-type-email')
 
 mongoose.Promise = global.Promise
 mongoose.connect('mongodb://localhost:27017/Econ')
@@ -42,5 +43,24 @@ purchase.save().then((doc) => {
 }, (e) => {
     console.log('Cant save item', e)
 })
+
+let User = mongoose.model('User', {
+    email: {
+        type: mongoose.SchemaTypes.Email,
+        require: true
+        
+    }
+})
+
+let user = new User({
+    email: 'Jean@mail.com' //A valid email required 
+})
+
+user.save().then((doc) => {
+    console.log('User saved ', JSON.stringify(doc, undefined, 2))
+}, (e) => {
+    console.log('Couldn´t save user: ', e)
+})
+
 
 

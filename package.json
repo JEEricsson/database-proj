@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "mongodb": "^2.2.35",
-    "mongoose": "^5.0.15"
+    "mongoose": "^5.0.15",
+    "mongoose-type-email": "^1.0.5"
   }
 }

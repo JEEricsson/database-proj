@@ -4,8 +4,20 @@ const request = require('supertest')
 const {app} = require('./../server')
 const {Purchase} = require('./../models/purchase')
 
-beforeEach((done) => {  //!!!! Warning !!!!Don´t use this test on your production database. It will whipe it clean.....
-    Purchase.remove({}).then(() => done())
+const purchases = [{
+     text: 'Inserting test1',
+     clientId: '3457dfwsw3',
+     price: 30
+},{
+    text: 'Inserting test2',
+     clientId: '3457dfwse',
+     price: 35
+}]
+
+beforeEach((done) => {  // Dont use this test in production database. It will be whiped clean
+    Purchase.remove({}).then(() => {
+        Purchase.insertMany(purchases)       
+    }).then(() => done())
 })
 
 describe('POST /purchases', () => {
@@ -29,7 +41,7 @@ describe('POST /purchases', () => {
                 return done(err)
             }
 
-            Purchase.find().then((purchases) => {
+            Purchase.find({text}).then((purchases) => {
                 expect(purchases.length).toBe(1)
                 expect(purchases[0].text).toBe(text)
                 done()
@@ -48,8 +60,19 @@ describe('POST /purchases', () => {
         }
     })
         Purchase.find().then((purchases) => {
-            expect(purchases.length).toBe(0)
+            expect(purchases.length).toBe(2)
             done()
         }).catch((e) => done(e))
     })   
+})
+describe ('GET /purchases', () => {
+    it('Getting all the purchases  ', (done) => {
+        request(app)
+            .get('/purchases')
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.purchases.length).toBe(2)
+            })
+            .end(done)
+    })
 })

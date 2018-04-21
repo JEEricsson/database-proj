@@ -1,66 +1,44 @@
-let mongoose = require('mongoose')
-require('mongoose-type-email')
+let express = require('express')
+let body_Parser = require('body-parser')
 
-mongoose.Promise = global.Promise
-mongoose.connect('mongodb://localhost:27017/Econ')
+let {mongoose} = require('./db/mongoose')
+let {Purchase} = require('./models/purchase')
+let {User} = require('./models/user')
 
-let Purchase = mongoose.model('Purchase', {
-    clientId: {
-        type: String,
-        required: true
-    },
+let app = express()
 
-    text: {
-        type: String,
-        required: true,
-        minlenght: 5,
-        trim: true
-    },
-    price: {
-        type: Number,
-        required: true,
-        min: 0.01
-        },
-    completedAt: {
-        type: Date,
-        default: Date.now
-    },
-    active: {
-        type: Boolean,
-        default: false
-    }
+app.use(body_Parser.json())
+
+app.post('/purchases', (req, res) => { //recieving a http POST request from User
+    let purchase = new Purchase({
+        clientId: req.body.clientId,
+        text: req.body.text,
+        price: req.body.price,
+        active: req.body.active
+    })
+
+    purchase.save().then((result) => {
+        res.send(result)
+    }, (e) => {
+        res.status(400).send(e)
+    })
 })
 
-let purchase = new Purchase({
-    clientId: '345345',
-    text: 'Item 64',
-    price: 5.00,
-    active: true
-}) 
+app.post('/users', (req, res) => { //recieving a http POST request to create new user
+    let user = new User({
+        email: req.body.email
+       
+    })
 
-purchase.save().then((doc) => {
-    console.log('Saved item: ', doc)
-}, (e) => {
-    console.log('Cant save item', e)
+    user.save().then((result) => {
+        res.send(result)
+    }, (e) => {
+        res.status(400).send(e)
+     })
+    })
+
+
+
+app.listen(3000, () => {
+    console.log('Server started on port 3000')
 })
-
-let User = mongoose.model('User', {
-    email: {
-        type: mongoose.SchemaTypes.Email,
-        require: true
-        
-    }
-})
-
-let user = new User({
-    email: 'Jean@mail.com' //A valid email required 
-})
-
-user.save().then((doc) => {
-    console.log('User saved ', JSON.stringify(doc, undefined, 2))
-}, (e) => {
-    console.log('Couldn´t save user: ', e)
-})
-
-
-

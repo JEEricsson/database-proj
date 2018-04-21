@@ -37,6 +37,14 @@ app.post('/users', (req, res) => { //recieving a http POST request to create new
      })
     })
 
+    app.get('/purchases', (req, res) => {
+        Purchase.find().then((purchases) => {
+            res.send({purchases})
+        }, (e) => {
+            res.status(400).send(e)
+        })
+    })
+
 
 
 app.listen(3000, () => {

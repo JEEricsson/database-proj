@@ -1,3 +1,5 @@
+require('./config/conf')
+
 const _ = require('lodash')
 let {ObjectID} = require('mongodb')
 

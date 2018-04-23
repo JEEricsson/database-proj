@@ -1,3 +1,5 @@
+let {ObjectID} = require('mongodb')
+
 let express = require('express')
 let body_Parser = require('body-parser')
 
@@ -45,10 +47,27 @@ app.post('/users', (req, res) => { //recieving a http POST request to create new
         })
     })
 
+    app.get('/purchases/:id', (req, res) => {
+        let id = req.params.id
+        
+        if (!ObjectID.isValid(id)){
+             return res.status(404).send()
+         } 
+        Purchase.findById(id).then((purchase) => {
+                if (!purchase){
+                     return res.status(404).send('Item not found')
+                }
+                     res.send({purchase})
+           }).catch((e) => {
+               res.status(400).send()
+           })
+       
+    })
+    
 
 
 app.listen(3000, () => {
     console.log('Server started on port 3000')
 })
 
-module.exports = {app} // export
+module.exports = {app} 

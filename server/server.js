@@ -1,3 +1,4 @@
+const _ = require('lodash')
 let {ObjectID} = require('mongodb')
 
 let express = require('express')
@@ -79,7 +80,28 @@ app.post('/users', (req, res) => { //recieving a http POST request to create new
         })
     })
     
-    
+    app.patch('/purchases/:id', (req, res) => {
+        let id = req.params.id
+        let body = _.pick(req.body, ['text', 'active'])
+        if (!ObjectID.isValid(id)){
+            return res.status(404).send()
+        }
+        if (_.isBoolean(body.active) && body.active) {
+            body.completedAt = new Date()
+        }else{
+            body.active = false
+            body.completedAt = null
+        }
+        Purchase.findByIdAndUpdate(id, {$set: body}, {new: true}).then((purchase) => {
+        if (!purchase){
+            return res.status(404).send()
+        }
+        res.send({purchase})
+        }).catch((e) => {
+            res.status(400).send()
+        })
+
+    })
 
 app.listen(3000, () => {
     console.log('Server started on port 3000')

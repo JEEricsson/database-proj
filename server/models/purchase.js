@@ -9,7 +9,7 @@ let Purchase = mongoose.model('Purchase', {
     text: {
         type: String,
         required: true,
-        minlenght: 5,
+        minlength: 5,
         trim: true
     },
     price: {

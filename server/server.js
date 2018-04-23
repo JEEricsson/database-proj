@@ -29,15 +29,17 @@ app.post('/purchases', (req, res) => { //recieving a http POST request from User
     })
 })
 
-app.post('/users', (req, res) => { //recieving a http POST request to create new user
-    let user = new User({
-        email: req.body.email
-       
-    })
+    app.post('/users', (req, res) => { //recieving a http POST request to create new user
+  
+    let body = _.pick(req.body, ['email', 'password'])
+    let user = new User(body)
 
-    user.save().then((result) => {
-        res.send(result)
-    }, (e) => {
+    user.save().then(() => {
+        return user.generateAuthToken()
+
+    }).then((token) => {
+        res.header('my-auth', token).send(user)
+    }).catch ((e) => {
         res.status(400).send(e)
      })
     })

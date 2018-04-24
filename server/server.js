@@ -9,6 +9,7 @@ let body_Parser = require('body-parser')
 let {mongoose} = require('./db/mongoose')
 let {Purchase} = require('./models/purchase')
 let {User} = require('./models/user')
+let {authUser} = require('./middleware/authUser')
 
 let app = express()
 
@@ -105,6 +106,11 @@ app.post('/purchases', (req, res) => { //recieving a http POST request from User
             res.status(400).send()
         })
 
+    })
+
+    
+    app.get('/users/currentUser', authUser, (req, res) => {
+        res.send(req.user)
     })
 
 app.listen(3000, () => {

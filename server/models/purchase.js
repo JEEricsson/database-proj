@@ -2,8 +2,9 @@ let mongoose = require('mongoose')
 
 let Purchase = mongoose.model('Purchase', {
     clientId: {
-        type: String,
-        required: true
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+
     },
 
     text: {

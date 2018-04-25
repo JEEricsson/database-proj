@@ -15,9 +15,9 @@ let app = express()
 
 app.use(body_Parser.json())
 
-app.post('/purchases', (req, res) => { //recieving a http POST request from User
+app.post('/purchases', authUser, (req, res) => { //recieving a http POST request from User
     let purchase = new Purchase({
-        clientId: req.body.clientId,
+        clientId: req.user._id,
         text: req.body.text,
         price: req.body.price,
         active: req.body.active
@@ -45,10 +45,12 @@ app.post('/purchases', (req, res) => { //recieving a http POST request from User
      })
     })
 
-    app.get('/purchases', (req, res) => {
-        Purchase.find().then((purchases) => {
+    app.get('/purchases', authUser,(req, res) => {
+        Purchase.find({
+            clientId: req.user._id
+        }).then((purchases) => {
             res.send({purchases})
-        }, (e) => {
+        }, (e) => { 
             res.status(400).send(e)
         })
     })
@@ -59,7 +61,10 @@ app.post('/purchases', (req, res) => { //recieving a http POST request from User
         if (!ObjectID.isValid(id)){
              return res.status(404).send()
          } 
-        Purchase.findById(id).then((purchase) => {
+        Purchase.findOne({
+            _id: id, 
+            clientId: req.user._id
+        }).then((purchase) => {
                 if (!purchase){
                      return res.status(404).send('Item not found')
                 }
@@ -70,12 +75,15 @@ app.post('/purchases', (req, res) => { //recieving a http POST request from User
        
     })
 
-    app.delete('/purchases/:id', (req, res) => {
+    app.delete('/purchases/:id', authUser,(req, res) => {
         let id = req.params.id
         if (!ObjectID.isValid(id)){
             return res.status(404).send()
         }
-        Purchase.findByIdAndRemove(id).then((purchase) => {
+        Purchase.findOneRemove({
+            _id: id,
+            clientId: req.user._id
+        }).then((purchase) => {
             if (!purchase){
                 return res.status(404).send('Item not found')
             }
@@ -85,7 +93,7 @@ app.post('/purchases', (req, res) => { //recieving a http POST request from User
         })
     })
     
-    app.patch('/purchases/:id', (req, res) => {
+    app.patch('/purchases/:id', authUser, (req, res) => {
         let id = req.params.id
         let body = _.pick(req.body, ['text', 'active'])
         if (!ObjectID.isValid(id)){
@@ -97,7 +105,10 @@ app.post('/purchases', (req, res) => { //recieving a http POST request from User
             body.active = false
             body.completedAt = null
         }
-        Purchase.findByIdAndUpdate(id, {$set: body}, {new: true}).then((purchase) => {
+        Purchase.findOneAndUpdate({
+            _id: id,
+            clientId: req.user._id
+        }, {$set: body}, {new: true}).then((purchase) => {
         if (!purchase){
             return res.status(404).send()
         }

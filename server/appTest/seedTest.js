@@ -28,13 +28,13 @@ const purchases = [{
     _id: new ObjectID(),
     text: 'Test purchase',
     active: true,
-    clientId: '4234r3223',
+    clientId: firstUser,
     price:23
 },{
     _id: new ObjectID(),
     text: 'Test2 purchase',
     active: true,
-    clientId: '42r3223',
+    clientId: secondUser,
     price:20
 }]
 const populateUsers = (done) => {

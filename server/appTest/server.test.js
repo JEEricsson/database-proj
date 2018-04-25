@@ -15,12 +15,13 @@ beforeEach(populateUsers)
 describe('POST /purchases', () => {
     it('creating a new purchase', (done) => {
         let text = 'Inserting test'
-        let clientId = '3457dfwsw3'
+        let clientId = users[0]._id.toHexString()
         let price = 34
         
 
         request(app)
         .post('/purchases')
+        .set('my-auth', users[0].tokens[0].token)
         .send({text, clientId, price})
         .expect(200)
         .expect((res) => {
@@ -44,6 +45,7 @@ describe('POST /purchases', () => {
     it('Should not create a purchase that is not valid', (done) => {
         request(app)
         .post('/purchases')
+        .set('my-auth', users[0].tokens[0].token)
         .send({})
         .expect(400)
         .end((err) => {
@@ -61,9 +63,10 @@ describe ('GET /purchases', () => {
     it('Getting all the purchases  ', (done) => {
         request(app)
             .get('/purchases')
+            .set('my-auth', users[0].tokens[0].token)
             .expect(200)
             .expect((res) => {
-                expect(res.body.purchases.length).toBe(2)
+                expect(res.body.purchases.length).toBe(1)
             })
             .end(done)
     })

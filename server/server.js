@@ -109,7 +109,7 @@ app.post('/purchases', (req, res) => { //recieving a http POST request from User
     })
 
     
-    app.get('/users/currentUser', authUser, (req, res) => {
+    app.get('/users/currentuser', authUser, (req, res) => {
         res.send(req.user)
     })
 
@@ -122,6 +122,16 @@ app.post('/purchases', (req, res) => { //recieving a http POST request from User
             res.status(400).send()
         })
     })
+
+    app.delete('/users/currentuser/token', authUser, (req, res) => {
+        req.user.deleteToken(req.token).then(() => {
+            res.status(200).send()
+        }, () => {
+            res.status(400).send()
+        })
+    })
+
+ 
 
 app.listen(3000, () => {
     console.log('Server started on port 3000')

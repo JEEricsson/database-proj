@@ -3,22 +3,14 @@ const request = require('supertest')
 
 const {app} = require('./../server')
 const {Purchase} = require('./../models/purchase')
+const {User} = require('./../models/user')
+const {purchases, populatePurchases, users,populateUsers} = require('./seedTest.js')
 
-const purchases = [{
-     text: 'Inserting test1',
-     clientId: '3457dfwsw3',
-     price: 30
-},{
-    text: 'Inserting test2',
-     clientId: '3457dfwse',
-     price: 35
-}]
 
-beforeEach((done) => {  // Dont use this test in production database. It will be whiped clean
-    Purchase.remove({}).then(() => {
-        Purchase.insertMany(purchases)       
-    }).then(() => done())
-})
+beforeEach(populatePurchases)
+beforeEach(populateUsers) 
+
+
 
 describe('POST /purchases', () => {
     it('creating a new purchase', (done) => {
@@ -74,5 +66,81 @@ describe ('GET /purchases', () => {
                 expect(res.body.purchases.length).toBe(2)
             })
             .end(done)
+    })
+})
+
+describe ('Get /users/currentUser', () => {
+    it('return user if authenticated', (done) => {
+        request(app)
+            .get('/users/currentUser')
+            .set('my-auth', users[0].tokens[0].token)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body._id).toBe(users[0]._id.toHexString())
+                expect(res.body.email).toBe(users[0].email)
+            })
+            .end(done)
+    })
+    it('return 401 if user not authenticated', (done) => {
+        request(app)
+        .get('/users/currentUser')
+        .expect(401)
+        .expect((res) => {
+            expect(res.body).toEqual({})
+            
+        })
+        .end(done)
+    })
+    
+})
+
+describe('POST /users', () =>{
+    it('create a user', (done) => {
+        let email = 'test1@mail.com'
+        let password = 'testPass'
+
+        request(app)
+        .post('/users')
+        .send({email,password})
+        .expect(200)
+        .expect((res) => {
+            expect(res.headers['my-auth']).toBeTruthy()
+            expect(res.body._id).toBeTruthy()
+            expect(res.body.email).toBe(email)
+        })
+        .end((err) => {
+            if (err){
+                return done(err)
+            }
+            User.findOne({email}).then((user) => {
+                expect(user).toBeTruthy()
+                expect(user.password).not.toBe(password)
+                done()
+            })
+        })
+
+    })
+    it('validation errors', (done) => {
+        let email = 'test1mail.com'
+        let password = 'teas'
+
+        request(app)
+        .post('/users')
+        .send({email,password})
+        .expect(400)
+        .end((err) => {
+            
+        done()
+        })
+
+    })
+    it('not create a user if the email is used', (done) => {
+       
+        request(app)
+        .post('/users')
+        .send({email: users[0].email,password:'teasssdsd'})
+        .expect(400)
+
+        done()
     })
 })

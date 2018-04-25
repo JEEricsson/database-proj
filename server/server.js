@@ -113,6 +113,16 @@ app.post('/purchases', (req, res) => { //recieving a http POST request from User
         res.send(req.user)
     })
 
+    app.post('/users/login',(req, res) => {
+        let body = _.pick(req.body, ['email', 'password'])
+        
+        User.findByBody(body.email, body.password).then((user) => {
+            res.send(user)
+        }).catch((e) => {
+            res.status(400).send()
+        })
+    })
+
 app.listen(3000, () => {
     console.log('Server started on port 3000')
 })
